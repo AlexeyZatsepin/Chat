@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
+                                    .setIsSmartLockEnabled(true)
                                     .setProviders(AuthUI.EMAIL_PROVIDER, AuthUI.GOOGLE_PROVIDER)
                                     .build(),
                             RC_SIGN_IN);
@@ -251,7 +251,12 @@ public class MainActivity extends AppCompatActivity {
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     FriendlyMessage fm = dataSnapshot.getValue(FriendlyMessage.class);
                     int i = mMessageAdapter.getPosition(fm);
-                    mMessageAdapter.insert(fm, i);
+                    if (i>0){
+                        mMessageAdapter.insert(fm, i);
+                    }else{
+                        mMessageAdapter.add(fm);
+                    }
+
                 }
 
                 @Override
