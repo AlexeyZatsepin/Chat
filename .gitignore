@@ -5,3 +5,8 @@ local.properties
 build
 app/google-services.json
 .DS_Store
+
+**/node_modules
+**/.firebaserc
+*/npm-debug.log
+
