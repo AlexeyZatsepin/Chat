@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         mSendButton = (Button) findViewById(R.id.sendButton);
 
         // Initialize message ListView and its adapter
-        List<FriendlyMessage> friendlyMessages = new ArrayList<>();
+        List<Message> friendlyMessages = new ArrayList<>();
         mMessageAdapter = new MessageAdapter(this, R.layout.item_message, friendlyMessages);
         mMessageListView.setAdapter(mMessageAdapter);
 
@@ -151,8 +152,7 @@ public class MainActivity extends AppCompatActivity {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Send messages on click
-                FriendlyMessage friendlyMessage = new FriendlyMessage(mMessageEditText.getText().toString(), mUsername, null);
+                Message friendlyMessage = new Message(mMessageEditText.getText().toString(), mUsername, null);
                 mMessagesReference.push().setValue(friendlyMessage);
                 // Clear input box
                 mMessageEditText.setText("");
@@ -219,6 +219,9 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.sign_out_menu) {
             AuthUI.getInstance().signOut(this);
             return true;
+        } else if (item.getItemId() == R.id.crash){
+            FirebaseCrash.logcat(Log.ERROR, TAG, "crash caused");
+            throw new NullPointerException("Fake null pointer exception");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -243,13 +246,13 @@ public class MainActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    FriendlyMessage fm = dataSnapshot.getValue(FriendlyMessage.class);
+                    Message fm = dataSnapshot.getValue(Message.class);
                     mMessageAdapter.add(fm);
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    FriendlyMessage fm = dataSnapshot.getValue(FriendlyMessage.class);
+                    Message fm = dataSnapshot.getValue(Message.class);
                     int i = mMessageAdapter.getPosition(fm);
                     if (i>0){
                         mMessageAdapter.insert(fm, i);
@@ -261,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    FriendlyMessage fm = dataSnapshot.getValue(FriendlyMessage.class);
+                    Message fm = dataSnapshot.getValue(Message.class);
                     mMessageAdapter.remove(fm);
                 }
 
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                     // Set the download URL to the message box, so that the user can send it to the database
-                    FriendlyMessage friendlyMessage = new FriendlyMessage(null, mUsername, downloadUrl.toString());
+                    Message friendlyMessage = new Message(null, mUsername, downloadUrl.toString());
                     mMessagesReference.push().setValue(friendlyMessage);
                 }
             });
@@ -354,4 +357,6 @@ public class MainActivity extends AppCompatActivity {
         mMessageEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(friendly_msg_length.intValue())});
         Log.d(TAG, FRIENDLY_MSG_LENGTH_KEY + " = " + friendly_msg_length);
     }
+
+
 }
