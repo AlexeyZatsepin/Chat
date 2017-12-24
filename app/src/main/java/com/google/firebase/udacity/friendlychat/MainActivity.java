@@ -20,6 +20,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -61,14 +63,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    public static final String ANONYMOUS = "anonymous";
     public static final String FRIENDLY_MSG_LENGTH_KEY = "friendly_msg_length";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
 
     private static final int RC_SIGN_IN = 1;
     private static final int RC_PHOTO_PICKER = 2;
 
-    private ListView mMessageListView;
+    private RecyclerView mMessageListView;
     private MessageAdapter mMessageAdapter;
     private ProgressBar mProgressBar;
     private ImageButton mPhotoPickerButton;
@@ -84,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference mFileReference;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
 
-    private String mUsername;
+    private FirebaseUser mUsername;
+    private List<Message> mMessages = new ArrayList<>();
 
 
     @Override
@@ -92,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mUsername = ANONYMOUS;
         mDatabase = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
         mStorage = FirebaseStorage.getInstance();
@@ -103,14 +104,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize references to views
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mMessageListView = (ListView) findViewById(R.id.messageListView);
+        mMessageListView = (RecyclerView) findViewById(R.id.messageListView);
         mPhotoPickerButton = (ImageButton) findViewById(R.id.photoPickerButton);
         mMessageEditText = (EditText) findViewById(R.id.messageEditText);
         mSendButton = (Button) findViewById(R.id.sendButton);
 
-        // Initialize message ListView and its adapter
-        List<Message> friendlyMessages = new ArrayList<>();
-        mMessageAdapter = new MessageAdapter(this, R.layout.item_message, friendlyMessages);
+        mMessageAdapter = new MessageAdapter(mMessages);
         mMessageListView.setAdapter(mMessageAdapter);
 
         // Initialize progress bar
@@ -152,7 +151,8 @@ public class MainActivity extends AppCompatActivity {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Message friendlyMessage = new Message(mMessageEditText.getText().toString(), mUsername, null);
+                String myUrl = mUsername.getPhotoUrl() == null? "":mUsername.getPhotoUrl().toString();
+                Message friendlyMessage = new Message(mMessageEditText.getText().toString(), mUsername.getDisplayName(), null, myUrl);
                 mMessagesReference.push().setValue(friendlyMessage);
                 // Clear input box
                 mMessageEditText.setText("");
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    onSignedIn(user.getDisplayName());
+                    onSignedIn(user);
                     Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.", Toast.LENGTH_SHORT).show();
                 } else {
                     onSighOut();
@@ -197,13 +197,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onSighOut() {
-        mUsername = ANONYMOUS;
+        mUsername = null;
         detachListener();
-        mMessageAdapter.clear();
+        mMessages.clear();
+        mMessageAdapter.notifyDataSetChanged();
     }
 
-    private void onSignedIn(String name) {
-        mUsername = name;
+    private void onSignedIn(FirebaseUser user) {
+        mUsername = user;
         attachListener();
     }
 
@@ -221,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (item.getItemId() == R.id.crash){
             FirebaseCrash.logcat(Log.ERROR, TAG, "crash caused");
-            throw new NullPointerException("Fake null pointer exception");
+//            throw new NullPointerException("Fake null pointer exception");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -236,7 +237,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mMessageAdapter.clear();
+        mMessages.clear();
+        mMessageAdapter.notifyDataSetChanged();
         mAuth.removeAuthStateListener(mAuthListener);
         detachListener();
     }
@@ -247,25 +249,29 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Message fm = dataSnapshot.getValue(Message.class);
-                    mMessageAdapter.add(fm);
+                    mMessages.add(fm);
+                    mMessageAdapter.notifyItemInserted(mMessages.size()-1);
+                    mMessageListView.smoothScrollToPosition(mMessages.size()-1);
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                     Message fm = dataSnapshot.getValue(Message.class);
-                    int i = mMessageAdapter.getPosition(fm);
+                    int i = mMessages.indexOf(fm);
                     if (i>0){
-                        mMessageAdapter.insert(fm, i);
+                        mMessageAdapter.notifyItemChanged(i);
                     }else{
-                        mMessageAdapter.add(fm);
+                        mMessages.add(fm);
+                        mMessageAdapter.notifyItemInserted(mMessages.size()-1);
                     }
-
+                    mMessageListView.smoothScrollToPosition(mMessages.size()-1);
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     Message fm = dataSnapshot.getValue(Message.class);
-                    mMessageAdapter.remove(fm);
+                    mMessages.remove(fm);
+                    mMessageAdapter.notifyDataSetChanged();
                 }
 
                 @Override
@@ -308,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                     // Set the download URL to the message box, so that the user can send it to the database
-                    Message friendlyMessage = new Message(null, mUsername, downloadUrl.toString());
+                    Message friendlyMessage = new Message(null, mUsername.getDisplayName(), downloadUrl.toString(), mUsername.getPhotoUrl().toString());
                     mMessagesReference.push().setValue(friendlyMessage);
                 }
             });

@@ -8,4 +8,5 @@ build
 **/node_modules
 **/.firebaserc
 */npm-debug.log
+*log*
 

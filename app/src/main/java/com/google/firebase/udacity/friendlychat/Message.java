@@ -20,14 +20,16 @@ public class Message{
     private String text;
     private String name;
     private String photoUrl;
+    private String imageUrl;
 
     public Message() {
     }
 
-    public Message(String text, String name, String photoUrl) {
+    public Message(String text, String name, String photoUrl, String imageUrl) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;
+        this.imageUrl = imageUrl;
     }
 
     public String getText() {
@@ -52,5 +54,13 @@ public class Message{
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
