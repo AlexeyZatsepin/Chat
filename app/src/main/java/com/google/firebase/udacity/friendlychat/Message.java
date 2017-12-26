@@ -22,10 +22,9 @@ public class Message{
     private String photoUrl;
     private String imageUrl;
 
-    public Message() {
-    }
+    public Message(){}
 
-    public Message(String text, String name, String photoUrl, String imageUrl) {
+    public Message(String text, String name, String imageUrl, String photoUrl) {
         this.text = text;
         this.name = name;
         this.photoUrl = photoUrl;

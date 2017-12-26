@@ -12,42 +12,45 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/messengerImageView"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_account_circle_black_36dp"/>
-
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="10dp">
+            android:layout_weight="1"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/messageTextView"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
+                android:gravity="right"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:text="Hello, i am Alexey"/>
 
             <ImageView
                 android:id="@+id/messageImageView"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:background="@color/colorPrimary"
                 android:scaleType="fitCenter"
+                android:gravity="right"
                 tools:src="@drawable/ic_account_circle_black_36dp"/>
 
             <TextView
                 android:id="@+id/messengerTextView"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0"
+                android:gravity="right"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 tools:text = "Alexey"/>
         </LinearLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/messengerImageView"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_account_circle_black_36dp"/>
     </LinearLayout>
 </LinearLayout>

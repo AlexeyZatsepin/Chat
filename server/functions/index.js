@@ -47,7 +47,7 @@ exports.addWelcomeMessages = functions.auth.user().onCreate(event => {
   const user = event.data;
   console.log('A new user signed in for the first time.');
   const fullName = user.displayName || 'Anonymous';
-
+  console.log('New user name: ' + user.displayName)
   // Saves the new welcome message into the database
   // which then displays it in the FriendlyChat clients.
   return admin.database().ref('messages').push({

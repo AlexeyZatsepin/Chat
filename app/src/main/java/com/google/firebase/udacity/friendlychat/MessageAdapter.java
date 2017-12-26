@@ -23,16 +23,38 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder>{
     private List<Message> messages;
+    private String name;
     private static String TAG = MessageAdapter.class.getName();
+
+    private static final int MY_MESSAGE = 0;
+    private static final int OTHER_MESSAGE = 1;
+
 
     public MessageAdapter(List<Message> messages) {
         this.messages = messages;
     }
 
+    public void setCurrentUser(String name){
+        this.name = name;
+    }
+
     @Override
     public MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        return new MessageViewHolder(inflater.inflate(R.layout.item_message, parent, false));
+        int layout;
+        if (viewType == MY_MESSAGE){
+            layout = R.layout.item_my_message;
+        } else if (viewType == OTHER_MESSAGE) {
+            layout = R.layout.item_message;
+        } else {
+            layout = R.layout.item_message;
+        }
+        return new MessageViewHolder(inflater.inflate(layout, parent, false));
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return messages.get(position).getName().equals(name) ? MY_MESSAGE : OTHER_MESSAGE;
     }
 
     @Override
@@ -40,8 +62,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         Message friendlyMessage = messages.get(position);
         if (friendlyMessage.getText() != null) {
             holder.messageTextView.setText(friendlyMessage.getText());
-            holder.messageTextView.setVisibility(TextView.VISIBLE);
-            holder.messageImageView.setVisibility(ImageView.GONE);
+            holder.messageTextView.setVisibility(View.VISIBLE);
+            holder.messageImageView.setVisibility(View.GONE);
         } else {
             String imageUrl = friendlyMessage.getImageUrl();
             if (imageUrl != null && imageUrl.startsWith("gs://")) {
@@ -67,11 +89,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                         .load(friendlyMessage.getImageUrl())
                         .into(holder.messageImageView);
             }
-            holder.messageImageView.setVisibility(ImageView.VISIBLE);
-            holder.messageTextView.setVisibility(TextView.GONE);
+            holder.messageImageView.setVisibility(View.VISIBLE);
+            holder.messageTextView.setVisibility(View.GONE);
         }
 
 
+        if (friendlyMessage.getName().contains("Firebase")){
+            holder.messengerTextView.setVisibility(View.GONE);
+
+        }
         holder.messengerTextView.setText(friendlyMessage.getName());
         if (friendlyMessage.getPhotoUrl() == null) {
             holder.messengerImageView.setImageDrawable(ContextCompat.getDrawable(holder.messengerImageView.getContext(),
@@ -88,13 +114,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return messages.size();
     }
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+    class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
         ImageView messageImageView;
         TextView messengerTextView;
         CircleImageView messengerImageView;
 
-        public MessageViewHolder(View v) {
+        MessageViewHolder(View v) {
             super(v);
             messageTextView = (TextView) itemView.findViewById(R.id.messageTextView);
             messageImageView = (ImageView) itemView.findViewById(R.id.messageImageView);

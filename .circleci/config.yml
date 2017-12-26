@@ -18,8 +18,14 @@ jobs:
             - ~/.gradle
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
-          name: Initial build
-          command: ./gradlew clean assembleDebug --no-daemon --stacktrace
+          name: Debug build
+          command: ./gradlew clean assembleDebug --no-daemon --stacktrace --info
+      - store_artifacts:
+          path: app/build/outputs/apk/
+          destination: apks/
+      - run:
+          name: Release build
+          command: ./gradlew assembleRelease
       - store_artifacts:
           path: app/build/outputs/apk/
           destination: apks/

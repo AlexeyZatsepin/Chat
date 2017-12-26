@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -33,7 +32,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -84,10 +82,9 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseStorage mStorage;
     private StorageReference mFileReference;
     private FirebaseRemoteConfig mFirebaseRemoteConfig;
-
     private FirebaseUser mUsername;
-    private List<Message> mMessages = new ArrayList<>();
 
+    private List<Message> mMessages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         mMessageListView.setAdapter(mMessageAdapter);
 
         // Initialize progress bar
-        mProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        mProgressBar.setVisibility(ProgressBar.VISIBLE);
 
         // ImagePickerButton shows an image picker to upload a image for a message
         mPhotoPickerButton.setOnClickListener(new View.OnClickListener() {
@@ -165,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     onSignedIn(user);
-                    Toast.makeText(MainActivity.this, "You're now signed in. Welcome to FriendlyChat.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "You're now signed in. Welcome to chat.", Toast.LENGTH_SHORT).show();
                 } else {
                     onSighOut();
                     startActivityForResult(
@@ -205,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSignedIn(FirebaseUser user) {
         mUsername = user;
+        mMessageAdapter.setCurrentUser(mUsername.getDisplayName());
         attachListener();
     }
 
@@ -220,8 +218,8 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.sign_out_menu) {
             AuthUI.getInstance().signOut(this);
             return true;
-        } else if (item.getItemId() == R.id.crash){
-            FirebaseCrash.logcat(Log.ERROR, TAG, "crash caused");
+        } else if (item.getItemId() == R.id.settings){
+//            FirebaseCrash.logcat(Log.ERROR, TAG, "crash caused");
 //            throw new NullPointerException("Fake null pointer exception");
         }
         return super.onOptionsItemSelected(item);
@@ -252,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
                     mMessages.add(fm);
                     mMessageAdapter.notifyItemInserted(mMessages.size()-1);
                     mMessageListView.smoothScrollToPosition(mMessages.size()-1);
+                    mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 }
 
                 @Override
@@ -274,13 +273,8 @@ public class MainActivity extends AppCompatActivity {
                     mMessageAdapter.notifyDataSetChanged();
                 }
 
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
+                @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+                @Override public void onCancelled(DatabaseError databaseError) {}
             };
             mMessagesReference.addChildEventListener(mChildEventListener);
         }
