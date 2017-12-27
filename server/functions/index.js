@@ -52,7 +52,7 @@ exports.addWelcomeMessages = functions.auth.user().onCreate(event => {
   // which then displays it in the FriendlyChat clients.
   return admin.database().ref('messages').push({
     name: 'Firebase Bot',
-    photoUrl: '/images/firebase-logo.png', // Firebase logo
+    photoUrl: 'http://friendlychat000.firebaseapp.com/images/firebase-logo.png', // Firebase logo
     text: `${fullName} signed in for the first time! Welcome!` // Using back-ticks.
   }).then(() => console.log('Welcome message written to database.'));
 });
@@ -68,7 +68,7 @@ exports.sendNotifications = functions.database.ref('/messages/{messageId}').onCr
     notification: {
       title: `${snapshot.val().name} posted ${text ? 'a message' : 'an image'}`,
       body: text ? (text.length <= 100 ? text : text.substring(0, 97) + '...') : '',
-      icon: snapshot.val().photoUrl || '/images/profile_placeholder.png',
+      icon: snapshot.val().photoUrl || 'http://friendlychat000.firebaseapp.com/images/profile_placeholder.png',
       click_action: `https://${functions.config().firebase.authDomain}`
     }
   };

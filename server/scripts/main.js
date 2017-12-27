@@ -89,7 +89,7 @@ FriendlyChat.prototype.saveMessage = function(e) {
     this.messagesRef.push({
       name: currentUser.displayName,
       text: this.messageInput.value,
-      photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
+      photoUrl: currentUser.photoURL || 'http://friendlychat000.firebaseapp.com/images/profile_placeholder.png'
     }).then(function() {
       // Clear message text field and SEND button state.
       FriendlyChat.resetMaterialTextfield(this.messageInput);
@@ -133,7 +133,7 @@ FriendlyChat.prototype.saveImageMessage = function(event) {
     this.messagesRef.push({
       name: currentUser.displayName,
       imageUrl: FriendlyChat.LOADING_IMAGE_URL,
-      photoUrl: currentUser.photoURL || '/images/profile_placeholder.png'
+      photoUrl: currentUser.photoURL || 'http://friendlychat000.firebaseapp.com/images/profile_placeholder.png'
     }).then(function(data) {
 
       // Upload the image to Cloud Storage.
