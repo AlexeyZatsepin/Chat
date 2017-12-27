@@ -40,7 +40,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -62,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     public static final String FRIENDLY_MSG_LENGTH_KEY = "friendly_msg_length";
+    public static final String BASE_URL = "http://friendlychat000.firebaseapp.com";
     public static final int DEFAULT_MSG_LENGTH_LIMIT = 1000;
 
     private static final int RC_SIGN_IN = 1;
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String myUrl = mUsername.getPhotoUrl() == null? "":mUsername.getPhotoUrl().toString();
+                String myUrl = mUsername.getPhotoUrl() == null? BASE_URL+"/images/profile_placeholder.png":mUsername.getPhotoUrl().toString();
                 Message friendlyMessage = new Message(mMessageEditText.getText().toString(), mUsername.getDisplayName(), null, myUrl);
                 mMessagesReference.push().setValue(friendlyMessage);
                 // Clear input box
@@ -308,7 +308,8 @@ public class MainActivity extends AppCompatActivity {
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
 
                     // Set the download URL to the message box, so that the user can send it to the database
-                    Message friendlyMessage = new Message(null, mUsername.getDisplayName(), downloadUrl.toString(), mUsername.getPhotoUrl().toString());
+                    String myUrl = mUsername.getPhotoUrl() == null? BASE_URL+"/images/profile_placeholder.png":mUsername.getPhotoUrl().toString();
+                    Message friendlyMessage = new Message(null, mUsername.getDisplayName(), downloadUrl.toString(), myUrl);
                     mMessagesReference.push().setValue(friendlyMessage);
                 }
             });
