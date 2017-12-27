@@ -8,7 +8,7 @@ There are common chat application for both of Android and Web.
 ## Overview
 
 Chat is an app that allows users to send and receive text and photos in realtime across platforms. In this project I test all features that provides by Firebase.
-You can check [web client](https://friendlychat000.firebaseapp.com), [android client](https://12-111722923-gh.circle-artifacts.com/0/apks/app-release-unsigned.apk).
+You can check [web client](https://friendlychat000.firebaseapp.com), [android debug client](https://13-111722923-gh.circle-artifacts.com/0/apks/app-debug.apk).
 
 ## Setup
 
